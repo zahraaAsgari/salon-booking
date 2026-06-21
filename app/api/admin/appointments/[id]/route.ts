@@ -30,6 +30,7 @@ export async function DELETE(
   try {
     await db.query(`DELETE FROM "Appointment" WHERE id = $1`, [params.id])
     return NextResponse.json({ message: "نوبت حذف شد" })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
   }
