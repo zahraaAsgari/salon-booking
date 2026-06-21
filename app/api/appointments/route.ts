@@ -28,9 +28,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { userId, serviceId, staffId, date, notes } = await req.json()
-    console.log("دریافتی:", { userId, serviceId, staffId, date, notes })
 
-    // گرفتن مدت زمان سرویس
     const serviceResult = await db.query(
       `SELECT * FROM "Service" WHERE id = $1`,
       [serviceId]
@@ -44,7 +42,6 @@ export async function POST(req: NextRequest) {
     const appointmentDate = new Date(date)
     const endTime = new Date(appointmentDate.getTime() + service.duration * 60000)
 
-    // چک کردن تداخل
     const conflict = await db.query(
       `SELECT id FROM "Appointment"
        WHERE "staffId" = $1
@@ -60,7 +57,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // ثبت نوبت
     const result = await db.query(
       `INSERT INTO "Appointment" 
         (id, "userId", "serviceId", "staffId", date, status, "totalPrice", notes, "createdAt", "updatedAt")
