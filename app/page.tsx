@@ -1,65 +1,107 @@
-import Image from "next/image";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
-export default function Home() {
+const HomeButtons = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="flex justify-center gap-3">
+      <Link href="/booking/service">
+        <Button size="lg" className="bg-pink-500 text-white hover:bg-pink-600 px-6">
+          رزرو نوبت
+        </Button>
+      </Link>
+      <Link href="/contact">
+        <Button size="lg" className="bg-white text-pink-500 hover:bg-pink-50 px-6">
+          تماس با ما
+        </Button>
+      </Link>
     </div>
-  );
+  )
+}
+
+const services = [
+  { icon: "✂️", name: "کوتاهی مو", price: "از ۱۵۰,۰۰۰ تومان" },
+  { icon: "🎨", name: "رنگ و هایلایت", price: "از ۴۰۰,۰۰۰ تومان" },
+  { icon: "💅", name: "مانیکور و پدیکور", price: "از ۱۲۰,۰۰۰ تومان" },
+  { icon: "✨", name: "کراتین و بافت", price: "از ۸۰۰,۰۰۰ تومان" },
+]
+
+const steps = [
+  { step: "۱", title: "انتخاب سرویس", desc: "سرویس مورد نظر را انتخاب کنید" },
+  { step: "۲", title: "انتخاب متخصص", desc: "با متخصص دلخواه نوبت بگیرید" },
+  { step: "۳", title: "انتخاب زمان", desc: "روز و ساعت مناسب را انتخاب کنید" },
+  { step: "۴", title: "تأیید نوبت", desc: "نوبت شما ثبت و تأیید می‌شود" },
+]
+
+export default function HomePage() {
+  return (
+    <main className="min-h-screen bg-white" dir="rtl">
+
+      {/* هیرو */}
+      <section className="bg-linear-to-b from-pink-50 to-white py-20 px-4 text-center">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="text-7xl">💅</div>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+            سالن زیبایی نیلوفر
+          </h1>
+          <p className="text-lg text-gray-500">
+            رزرو آنلاین نوبت — سریع، ساده و بدون معطلی
+          </p>
+          {/* دکمه‌های هوشمند - client component */}
+          <HomeButtons />
+        </div>
+      </section>
+
+      {/* سرویس‌ها */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-10">خدمات ما</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {services.map((s) => (
+              <div key={s.name} className="bg-white rounded-2xl p-5 text-center shadow-sm hover:shadow-md transition-all">
+                <div className="text-4xl mb-3">{s.icon}</div>
+                <p className="font-semibold text-gray-900 text-sm">{s.name}</p>
+                <p className="text-xs text-pink-500 mt-1">{s.price}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* مراحل */}
+      <section className="py-16 px-4">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-10">رزرو نوبت در ۴ قدم</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {steps.map((s) => (
+              <div key={s.step} className="text-center space-y-2">
+                <div className="w-12 h-12 rounded-full bg-pink-500 text-white flex items-center justify-center text-xl font-bold mx-auto">
+                  {s.step}
+                </div>
+                <p className="font-semibold text-gray-900">{s.title}</p>
+                <p className="text-xs text-gray-500">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 px-4 bg-pink-500 text-white text-center">
+        <div className="max-w-xl mx-auto space-y-4">
+          <h2 className="text-2xl font-bold">آماده‌اید؟</h2>
+          <p className="text-pink-100">همین الان نوبت خود را رزرو کنید</p>
+          <Link href="/booking/service">
+            <Button size="lg" className="bg-white text-pink-500 hover:bg-pink-50 px-8">
+              رزرو نوبت رایگان
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* فوتر */}
+      <footer className="py-8 px-4 text-center text-sm text-gray-400 border-t">
+        <p>سالن زیبایی نیلوفر © ۱۴۰۵</p>
+      </footer>
+    </main>
+  )
 }
