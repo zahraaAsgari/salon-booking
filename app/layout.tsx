@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import BottomNav from "@/components/bottom-nav"
 import Navbar from "@/components/Navbar"
 
 export const metadata: Metadata = {
@@ -21,8 +22,12 @@ export default function RootLayout({
         />
       </head>
       <body style={{ fontFamily: "Vazirmatn, sans-serif" }}>
-        <Navbar/>
-        {children}</body>
+        <Navbar />
+        <div className="pb-16 md:pb-0">
+          {children}
+        </div>
+        <BottomNav />
+      </body>
     </html>
   )
 }

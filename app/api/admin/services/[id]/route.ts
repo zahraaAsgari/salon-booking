@@ -1,32 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 
-export async function PATCH(
+export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { name, description, price, duration, isActive } = await req.json()
+    const { id } = await params
+    console.log("service id:", id)
     const result = await db.query(
-      `UPDATE "Service" 
-       SET name = $1, description = $2, price = $3, duration = $4, "isActive" = $5
-       WHERE id = $6 RETURNING *`,
-      [name, description, price, duration, isActive, params.id]
+      `SELECT * FROM "Service" WHERE id = $1`,
+      [id]
     )
+    console.log("result:", result.rows)
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: "پیدا نشد" }, { status: 404 })
+    }
     return NextResponse.json(result.rows[0])
   } catch (error) {
-    return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
-  }
-}
-
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await db.query(`DELETE FROM "Service" WHERE id = $1`, [params.id])
-    return NextResponse.json({ message: "سرویس حذف شد" })
-  } catch (error) {
+    console.error("خطا کامل:", error)
     return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
   }
 }

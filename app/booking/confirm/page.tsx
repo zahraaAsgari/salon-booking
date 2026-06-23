@@ -5,45 +5,58 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatPrice } from "@/lib/utils"
+import Loading from "@/components/Loading"
 
-interface BookingData {
-  service: { id: string; name: string; price: number; duration: number }
-  staff: { id: string; name: string; specialty: string }
-  dateTime: string
+
+interface Service {
+  id: string
+  name: string
+  price: number
+  duration: number
+}
+
+interface Staff {
+  id: string
+  name: string
+  specialty: string
 }
 
 export default function ConfirmPage() {
   const router = useRouter()
-  const [data, setData] = useState<BookingData | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [service, setService] = useState<Service | null>(null)
+  const [staff, setStaff] = useState<Staff | null>(null)
+  const [dateTime, setDateTime] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
 
-useEffect(() => {
+  useEffect(() => {
     const serviceId = sessionStorage.getItem("selectedService")
     const staffId = sessionStorage.getItem("selectedStaff")
-    const dateTime = sessionStorage.getItem("selectedDateTime")
+    const dt = sessionStorage.getItem("selectedDateTime")
 
-    console.log("serviceId:", serviceId)
-    console.log("staffId:", staffId)
-    console.log("dateTime:", dateTime)
-
-    if (!serviceId || !staffId || !dateTime) {
+    if (!serviceId || !staffId || !dt) {
       router.push("/booking/service")
       return
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDateTime(dt)
+
     Promise.all([
       fetch(`/api/services/${serviceId}`).then((r) => r.json()),
       fetch(`/api/staff/${staffId}`).then((r) => r.json()),
-    ]).then(([service, staff]) => {
-      console.log("service:", service)
-      console.log("staff:", staff)
-      setData({ service, staff, dateTime })
+    ]).then(([s, st]) => {
+      setService(s)
+      setStaff(st)
+      setLoading(false)
+    }).catch(() => {
+      setLoading(false)
     })
   }, [router])
 
- async function handleConfirm() {
-    setLoading(true)
+  async function handleConfirm() {
+    setSubmitting(true)
     setError("")
 
     const user = JSON.parse(localStorage.getItem("user") || "{}")
@@ -54,25 +67,22 @@ useEffect(() => {
       return
     }
 
-    // مستقیم از sessionStorage بخون
     const staffId = sessionStorage.getItem("selectedStaff")
     const serviceId = sessionStorage.getItem("selectedService")
-    const dateTime = sessionStorage.getItem("selectedDateTime")
-
-    console.log("ارسالی:", { userId: user.id, serviceId, staffId, dateTime })
+    const dt = sessionStorage.getItem("selectedDateTime")
 
     const res = await fetch("/api/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: user.id,
-        serviceId: serviceId,
-        staffId: staffId,
-        date: dateTime,
+        serviceId,
+        staffId,
+        date: dt,
       }),
     })
 
-    setLoading(false)
+    setSubmitting(false)
 
     if (res.ok) {
       sessionStorage.removeItem("selectedService")
@@ -85,47 +95,51 @@ useEffect(() => {
     }
   }
 
-  if (!data) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">در حال بارگذاری...</p>
+        <Loading />
       </div>
     )
   }
 
-  const dateTime = new Date(data.dateTime)
+  if (!service || !staff || !dateTime) return null
+
+  const date = new Date(dateTime)
 
   return (
     <div className="min-h-screen bg-gray-50 p-4" dir="rtl">
       <div className="max-w-lg mx-auto space-y-6">
 
-        {/* هدر */}
         <div className="text-center pt-8">
           <h1 className="text-2xl font-bold text-gray-900">تأیید نهایی</h1>
           <p className="text-gray-500 mt-1">اطلاعات نوبت خود را بررسی کنید</p>
         </div>
 
-        {/* خلاصه نوبت */}
         <Card>
           <CardContent className="p-6 space-y-4">
             <div className="flex justify-between items-center border-b pb-3">
               <span className="text-gray-500">سرویس</span>
-              <span className="font-semibold">{data.service.name}</span>
+              <span className="font-semibold">{service.name}</span>
             </div>
             <div className="flex justify-between items-center border-b pb-3">
               <span className="text-gray-500">متخصص</span>
-              <span className="font-semibold">{data.staff.name}</span>
+              <span className="font-semibold">{staff.name}</span>
+            </div>
+            <div className="flex justify-between items-center border-b pb-3">
+              <span className="text-gray-500">تخصص</span>
+              <span className="font-semibold">{staff.specialty}</span>
             </div>
             <div className="flex justify-between items-center border-b pb-3">
               <span className="text-gray-500">تاریخ</span>
               <span className="font-semibold">
-                {dateTime.toLocaleDateString("fa-IR")}
+                {date.toLocaleDateString("fa-IR")}
               </span>
             </div>
             <div className="flex justify-between items-center border-b pb-3">
               <span className="text-gray-500">ساعت</span>
               <span className="font-semibold">
-                {dateTime.toLocaleTimeString("fa-IR", {
+                {date.toLocaleTimeString("fa-IR", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
@@ -133,12 +147,12 @@ useEffect(() => {
             </div>
             <div className="flex justify-between items-center border-b pb-3">
               <span className="text-gray-500">مدت زمان</span>
-              <span className="font-semibold">{data.service.duration} دقیقه</span>
+              <span className="font-semibold">{service.duration} دقیقه</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-500">قیمت</span>
               <span className="font-bold text-pink-500 text-lg">
-                {formatPrice(data.service.price)}
+                {formatPrice(service.price)}
               </span>
             </div>
           </CardContent>
@@ -148,7 +162,7 @@ useEffect(() => {
           <p className="text-red-500 text-center text-sm">{error}</p>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pb-6">
           <Button
             variant="outline"
             className="flex-1"
@@ -159,9 +173,9 @@ useEffect(() => {
           <Button
             className="flex-1 bg-pink-500 hover:bg-pink-600 text-white"
             onClick={handleConfirm}
-            disabled={loading}
+            disabled={submitting}
           >
-            {loading ? "در حال ثبت..." : "ثبت نوبت ✓"}
+            {submitting ? "در حال ثبت..." : "ثبت نوبت ✓"}
           </Button>
         </div>
 
