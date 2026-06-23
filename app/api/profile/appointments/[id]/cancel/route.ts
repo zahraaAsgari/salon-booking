@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 
 export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // چک کردن اینکه نوبت حداقل ۲ ساعت دیگه باشه
+    const { id } = await context.params
+
     const appointment = await db.query(
       `SELECT date FROM "Appointment" WHERE id = $1`,
-      [params.id]
+      [id]
     )
 
     if (appointment.rows.length === 0) {
@@ -17,9 +18,7 @@ export async function PATCH(
     }
 
     const appointmentDate = new Date(appointment.rows[0].date)
-    const now = new Date()
-    const diffHours =
-      (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60)
+    const diffHours = (appointmentDate.getTime() - Date.now()) / (1000 * 60 * 60)
 
     if (diffHours < 2) {
       return NextResponse.json(
@@ -32,12 +31,11 @@ export async function PATCH(
       `UPDATE "Appointment" 
        SET status = 'CANCELLED', "updatedAt" = NOW()
        WHERE id = $1 RETURNING *`,
-      [params.id]
+      [id]
     )
 
     return NextResponse.json(result.rows[0])
-  } catch (error) {
-    console.error("خطا:", error)
+  } catch (_error) {
     return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
   }
 }

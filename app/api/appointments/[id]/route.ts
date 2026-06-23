@@ -1,49 +1,34 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 
-// لغو نوبت
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
     const { status } = await req.json()
-
-    const appointment = await prisma.appointment.update({
-      where: { id: params.id },
-      data: { status },
-      include: {
-        user: true,
-        service: true,
-        staff: true,
-      },
-    })
-
-    return NextResponse.json(appointment)
-  } catch (error) {
-    return NextResponse.json(
-      { error: "خطای سرور" },
-      { status: 500 }
+    const result = await db.query(
+      `UPDATE "Appointment" 
+       SET status = $1, "updatedAt" = NOW()
+       WHERE id = $2 RETURNING *`,
+      [status, id]
     )
+    return NextResponse.json(result.rows[0])
+  } catch (_error) {
+    return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
   }
 }
 
-// حذف نوبت
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    await prisma.appointment.delete({
-      where: { id: params.id },
-    })
-
+    const { id } = await context.params
+    await db.query(`DELETE FROM "Appointment" WHERE id = $1`, [id])
     return NextResponse.json({ message: "نوبت حذف شد" })
-  } catch (error) {
-    return NextResponse.json(
-      { error: "خطای سرور" },
-      { status: 500 }
-    )
+  } catch (_error) {
+    return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
   }
 }
