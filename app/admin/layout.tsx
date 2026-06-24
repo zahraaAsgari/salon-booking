@@ -8,6 +8,7 @@ const menuItems = [
   { href: "/admin/appointments", label: "نوبت‌ها", icon: "📅" },
   { href: "/admin/services", label: "سرویس‌ها", icon: "✂️" },
   { href: "/admin/staff", label: "متخصصان", icon: "👩" },
+  { href: "/admin/settings", label: "تنظیمات سالن", icon: "⚙️" }, 
 ]
 
 export default function AdminLayout({

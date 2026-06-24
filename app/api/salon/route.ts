@@ -20,3 +20,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { salonId, name, phone, address, description, logo, heroImage } = await req.json()
+
+    const result = await db.query(
+      `UPDATE "Salon" 
+       SET name = $1, phone = $2, address = $3, description = $4, 
+           logo = $5, "heroImage" = $6
+       WHERE id = $7 RETURNING *`,
+      [name, phone, address, description, logo, heroImage, salonId]
+    )
+
+    return NextResponse.json(result.rows[0])
+  } catch (_error) {
+    return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
+  }
+}
