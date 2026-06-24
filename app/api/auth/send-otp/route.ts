@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
+import { sendOTP } from "@/lib/sms"
 import { generateOTP } from "@/lib/utils"
 
 export async function POST(req: NextRequest) {
@@ -34,15 +35,20 @@ export async function POST(req: NextRequest) {
       [code, phone, expiresAt]
     )
 
-    // وقتی Kavenegar تنظیم شد این رو uncomment کن:
-    // await sendOTP(phone, code)
+    // ارسال پیامک واقعی
+    const smsResult = await sendOTP(phone, code)
+
+    if (!smsResult.success) {
+      console.error("خطا در ارسال پیامک")
+    }
 
     return NextResponse.json({
       message: "کد ارسال شد",
-      devCode: process.env.NODE_ENV === "development" ? code : undefined,
+      // فقط در development کد رو برگردون
+      ...(process.env.NODE_ENV === "development" && { devCode: code }),
     })
-  } catch (error) {
-    console.error("خطا:", error)
+  } catch (_error) {
+    console.error("خطا:", _error)
     return NextResponse.json({ error: "خطای سرور" }, { status: 500 })
   }
 }
