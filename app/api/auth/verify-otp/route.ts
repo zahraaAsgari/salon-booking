@@ -3,13 +3,11 @@ import { db } from "@/lib/db"
 
 export async function POST(req: NextRequest) {
   try {
-    const { phone, code, role } = await req.json()
+    const { phone, role } = await req.json()
 
     const otpResult = await db.query(
-      `SELECT * FROM "OtpCode" 
-       WHERE phone = $1 AND code = $2 AND used = false AND "expiresAt" > NOW()
-       LIMIT 1`,
-      [phone, code]
+         `SELECT * FROM "Admin" WHERE phone = $1`,
+      [phone]
     )
 
     if (otpResult.rows.length === 0) {
