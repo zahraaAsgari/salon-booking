@@ -19,6 +19,18 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
+  const [salonName, setSalonName] = useState("سالن نیلوفر")
+const [salonLogo, setSalonLogo] = useState<string | null>(null)
+
+useEffect(() => {
+  fetch("/api/salon?slug=niloofar")
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.name) setSalonName(data.name)
+      if (data.logo) setSalonLogo(data.logo)
+    })
+}, [])
+
   useEffect(() => {
     const stored = localStorage.getItem("user")
     // eslint-disable-next-line react-hooks/set-state-in-effect
