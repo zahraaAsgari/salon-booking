@@ -21,28 +21,30 @@ export default function Navbar() {
   const [salonName, setSalonName] = useState("سالن نیلوفر")
   const [salonLogo, setSalonLogo] = useState<string | null>(null)
 
-  useEffect(() => {
-    const stored = localStorage.getItem("user")
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setUser(stored ? JSON.parse(stored) : null)
-    setMounted(true)
-  }, [pathname])
+ useEffect(() => {
+  const stored = localStorage.getItem("user")
+  const parsedUser = stored ? JSON.parse(stored) : null
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setUser(parsedUser)
+  setMounted(true)
+}, [pathname])
 
   useEffect(() => {
-    fetch("/api/salon?slug=niloofar")
+ fetch("/api/salon?slug=default")
       .then((r) => r.json())
       .then((data) => {
         if (data.name) setSalonName(data.name)
         if (data.logo) setSalonLogo(data.logo)
       })
   }, [])
-
-  function handleLogout() {
-    localStorage.removeItem("user")
-    setUser(null)
-    setMenuOpen(false)
-    router.push("/")
-  }
+function handleLogout() {
+  localStorage.removeItem("user")
+  // پاک کردن کوکی
+  document.cookie = "user=; path=/; max-age=0"
+  setUser(null)
+  setMenuOpen(false)
+  router.push("/")
+}
 
   if (pathname?.startsWith("/admin")) return null
   if (!mounted) return null

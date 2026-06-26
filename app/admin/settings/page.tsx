@@ -46,7 +46,7 @@ export default function SettingsPage() {
 
   // بعد توی useEffect صداش بزن
   useEffect(() => {
-    fetch("/api/salon?slug=niloofar")
+   fetch("/api/salon?slug=default")
       .then((r) => r.json())
       .then((data) => {
         setSalon(data)

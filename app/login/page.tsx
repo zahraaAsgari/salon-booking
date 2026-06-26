@@ -36,27 +36,35 @@ export default function LoginPage() {
     }
   }
 
-  async function handleVerifyOTP() {
-    setLoading(true)
-    setError("")
-    const res = await fetch("/api/auth/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, code: otp }),
-    })
-    const data = await res.json()
-    setLoading(false)
-    if (res.ok) {
-      localStorage.setItem("user", JSON.stringify({ ...data.user, role }))
-      if (role === "admin") {
-        router.push("/admin/dashboard")
-      } else {
-        router.push("/")
-      }
+ async function handleVerifyOTP() {
+  setLoading(true)
+  setError("")
+  const res = await fetch("/api/auth/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, code: otp, role }),
+  })
+  const data = await res.json()
+  setLoading(false)
+
+  if (res.ok) {
+    const userData = { ...data.user, role }
+
+    // ذخیره توی localStorage
+    localStorage.setItem("user", JSON.stringify(userData))
+
+    // ذخیره توی کوکی برای middleware
+    document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=604800`
+
+    if (role === "admin") {
+      router.push("/admin/dashboard")
     } else {
-      setError(data.error)
+      router.push("/")
     }
+  } else {
+    setError(data.error)
   }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">

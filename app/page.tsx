@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import HomeButtons from "@/components/home-buttons"
+
 import Image from "next/image"
 
 interface Salon {
@@ -29,14 +29,32 @@ interface SlideItem {
   emoji?: string
   bg?: string
 }
-
 const defaultGallery: SlideItem[] = [
-  { id: "1", url: "", title: "کوتاهی مو", emoji: "✂️", bg: "bg-pink-100" },
-  { id: "2", url: "", title: "رنگ و هایلایت", emoji: "🎨", bg: "bg-purple-100" },
-  { id: "3", url: "", title: "مانیکور", emoji: "💅", bg: "bg-rose-100" },
-  { id: "4", url: "", title: "پدیکور", emoji: "🦶", bg: "bg-orange-100" },
-  { id: "5", url: "", title: "کراتین", emoji: "✨", bg: "bg-yellow-100" },
-  { id: "6", url: "", title: "هایلایت", emoji: "🌟", bg: "bg-amber-100" },
+  {
+    id: "1",
+    url: "https://images.unsplash.com/photo-1560066984-138daaa70c8f?w=800",
+    title: "کوتاهی و استایل مو",
+  },
+  {
+    id: "2",
+    url: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800",
+    title: "رنگ و هایلایت",
+  },
+  {
+    id: "3",
+    url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800",
+    title: "آرایش حرفه‌ای",
+  },
+  {
+    id: "4",
+    url: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800",
+    title: "مانیکور و پدیکور",
+  },
+  {
+    id: "5",
+    url: "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=800",
+    title: "خدمات تخصصی",
+  },
 ]
 
 const steps = [
@@ -56,7 +74,7 @@ export default function HomePage() {
     : defaultGallery
 
   useEffect(() => {
-    fetch("/api/salon?slug=niloofar")
+ fetch("/api/salon?slug=default")
       .then((r) => r.json())
       .then((data) => {
         setSalon(data)
@@ -77,47 +95,18 @@ export default function HomePage() {
     <main className="min-h-screen bg-white" dir="rtl">
 
       {/* هیرو */}
-      <section
-        className="relative py-24 px-4 overflow-hidden"
-        style={
-          salon?.heroImage
-            ? {
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${salon.heroImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : {}
-        }
-      >
-        <div
-          className={`absolute inset-0 ${
-            !salon?.heroImage
-              ? "bg-linear-to-br from-pink-500 via-pink-400 to-purple-500"
-              : ""
-          }`}
-        />
-        <div className="max-w-2xl mx-auto text-center space-y-6 relative z-10 text-white">
-          {salon?.logo ? (
-            <Image
-              src={salon.logo}
-              alt="logo"
-              className="w-20 h-20 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
-            />
-          ) : (
-            <div className="text-7xl">💅</div>
-          )}
-          <h1 className="text-4xl md:text-5xl font-bold">
-            {salon?.name || "سالن زیبایی نیلوفر"}
-          </h1>
-          <p className="text-lg text-pink-100">
-            {salon?.description || "رزرو آنلاین نوبت — سریع، ساده و بدون معطلی"}
-          </p>
-          {salon?.address && (
-            <p className="text-sm text-pink-200">📍 {salon.address}</p>
-          )}
-          <HomeButtons />
-        </div>
-      </section>
+     <section
+  className="relative py-40 px-4 overflow-hidden"
+  style={{
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${
+      salon?.heroImage ||
+      "https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=1200"
+    })`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }}
+>
+  </section>
 
       {/* کروسل */}
       <section className="py-16 px-4 bg-gray-50">
@@ -204,6 +193,8 @@ export default function HomePage() {
                   <Image
                     src={item.url}
                     alt={item.title}
+                    width={800}
+                    height={224}
                     className={`w-full rounded-2xl object-cover shadow-sm hover:shadow-md transition-all ${
                       i % 3 === 0 ? "h-48" : i % 3 === 1 ? "h-36" : "h-56"
                     }`}
